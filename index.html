@@ -172,7 +172,8 @@ textarea{resize:vertical;min-height:65px}
   <button class="nb" id="nj" onclick="showScreen('all-jobs')">All Jobs</button>
   <button class="nb" id="nc" onclick="showScreen('job')" style="display:none">Current Job</button>
   <button onclick="showSANSRef()" style="background:rgba(232,160,32,.18);border:1px solid rgba(232,160,32,.5);color:#F5C842;padding:0 10px;height:32px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:4px;margin-left:4px;white-space:nowrap;flex-shrink:0" title="SANS 10142-1 Clause Reference">📖 SANS 10142-1</button>
-  <button onclick="showHTGuide()" style="background:rgba(26,122,74,.25);border:1px solid rgba(26,122,74,.5);color:#5DD68A;padding:0 10px;height:32px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:4px;margin-left:4px;white-space:nowrap;flex-shrink:0" title="HellermannTyton Testing Guide">🔌 Test Guide</button>
+  <button onclick="showHTGuide()" style="background:rgba(26,122,74,.25);border:1px solid rgba(26,122,74,.5);color:#5DD68A;padding:0 10px;height:32px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:4px;margin-left:4px;white-space:nowrap;flex-shrink:0">🔌 Test Guide</button>
+  <button onclick="openSuperAdmin()" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.8);padding:0 10px;height:32px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:4px;margin-left:4px;white-space:nowrap;flex-shrink:0">🔐 Admin</button>
 </nav>
 
 <div id="flash" class="flash" style="display:none"></div>
@@ -310,10 +311,175 @@ textarea{resize:vertical;min-height:65px}
   </div>
 </div>
 
-<div class="main">
+<!-- SUPER ADMIN MODAL -->
+<div class="mbg" id="samodal" onclick="if(event.target===this&&SA_LOGGED_IN)cm('samodal')">
+  <div class="modal" style="max-width:820px;padding:0;overflow:hidden;border-radius:16px 16px 0 0;width:100%">
+
+    <!-- SA Login Screen -->
+    <div id="sa-login" style="padding:32px 24px;text-align:center">
+      <div style="font-size:40px;margin-bottom:10px">🔐</div>
+      <div style="font-size:18px;font-weight:700;color:var(--pri);margin-bottom:4px">Super Admin</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:24px">COC Manager Pro — Eagle Electrical Ventures</div>
+      <input id="sa-pwd" type="password" placeholder="Enter Super Admin password" style="max-width:300px;margin-bottom:12px;text-align:center;font-size:16px" onkeydown="if(event.key==='Enter')saLogin()">
+      <div style="display:flex;gap:10px;justify-content:center">
+        <button class="btn bg" onclick="cm('samodal')" style="padding:12px 20px">Cancel</button>
+        <button class="btn bp" onclick="saLogin()" style="padding:12px 24px">Login →</button>
+      </div>
+      <div id="sa-login-err" style="color:var(--err);font-size:13px;margin-top:10px;display:none">Incorrect password</div>
+    </div>
+
+    <!-- SA Dashboard -->
+    <div id="sa-dash" style="display:none">
+      <!-- Header -->
+      <div style="background:var(--pri);padding:14px 18px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10">
+        <div style="flex:1">
+          <div style="color:#fff;font-weight:700;font-size:15px">🔐 Super Admin</div>
+          <div style="color:rgba(255,255,255,.6);font-size:11px">COC Manager Pro · Eagle Electrical Ventures</div>
+        </div>
+        <button onclick="cm('samodal')" style="background:rgba(255,255,255,.15);border:none;color:#fff;width:36px;height:36px;border-radius:8px;cursor:pointer;font-size:18px;flex-shrink:0">✕</button>
+      </div>
+      <button onclick="cm('samodal')" style="width:100%;padding:13px;background:#EEF2FA;border:none;border-bottom:1px solid var(--border);color:var(--pri);font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;text-align:left">
+        ← Close Super Admin
+      </button>
+
+      <div style="padding:16px 18px;max-height:78vh;overflow-y:auto">
+
+        <!-- Tabs -->
+        <div style="display:flex;gap:0;background:#EEF2FA;border-radius:10px;overflow:hidden;margin-bottom:18px">
+          <button onclick="saTab('users')" id="satab-users" style="flex:1;padding:11px 0;border:none;background:var(--pri);color:#fff;font-weight:700;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer">👥 Users</button>
+          <button onclick="saTab('settings')" id="satab-settings" style="flex:1;padding:11px 0;border:none;background:transparent;color:var(--pri);font-weight:700;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer">⚙️ Settings</button>
+          <button onclick="saTab('billing')" id="satab-billing" style="flex:1;padding:11px 0;border:none;background:transparent;color:var(--pri);font-weight:700;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer">💳 Billing</button>
+          <button onclick="saTab('stats')" id="satab-stats" style="flex:1;padding:11px 0;border:none;background:transparent;color:var(--pri);font-weight:700;font-size:12px;font-family:'DM Sans',sans-serif;cursor:pointer">📊 Stats</button>
+        </div>
+
+        <!-- USERS TAB -->
+        <div id="satab-users-content">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+            <div style="font-size:14px;font-weight:700;color:var(--pri)">Registered Users <span id="sa-user-count" style="background:#EEF2FA;padding:2px 8px;border-radius:10px;font-size:12px">0</span></div>
+            <button onclick="saOpenAddUser()" class="btn bp" style="font-size:13px;padding:10px 16px">+ Add User</button>
+          </div>
+
+          <!-- Add/Edit User Form -->
+          <div id="sa-user-form" style="display:none;background:#F8F9FF;border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:14px">
+            <div style="font-size:13px;font-weight:700;color:var(--pri);margin-bottom:12px" id="sa-form-title">Add New User</div>
+            <div class="g2">
+              <div class="fg"><label class="lbl">Full Name *</label><input id="saU-name" placeholder="Electrician / Company name"></div>
+              <div class="fg"><label class="lbl">Email *</label><input id="saU-email" type="email" placeholder="their@email.com"></div>
+              <div class="fg"><label class="lbl">Cell Number</label><input id="saU-cell" placeholder="082 000 0000"></div>
+              <div class="fg"><label class="lbl">Company Name</label><input id="saU-company" placeholder="e.g. Van der Merwe Electrical"></div>
+              <div class="fg"><label class="lbl">DEL Reg Number</label><input id="saU-reg" placeholder="IE-12345"></div>
+              <div class="fg"><label class="lbl">Status</label>
+                <select id="saU-status">
+                  <option value="trial">🟡 Trial</option>
+                  <option value="active">🟢 Active (paid)</option>
+                  <option value="hold">🔴 On Hold</option>
+                  <option value="expired">⚫ Expired</option>
+                </select>
+              </div>
+              <div class="fg"><label class="lbl">Trial Days</label><input id="saU-trial" type="number" placeholder="${saSettings.trialDays}" value="${saSettings.trialDays}" min="1" max="365"></div>
+              <div class="fg"><label class="lbl">Monthly Price (R)</label><input id="saU-price" type="number" placeholder="${saSettings.monthlyPrice}" value="${saSettings.monthlyPrice}"></div>
+            </div>
+            <div class="fg"><label class="lbl">Notes</label><textarea id="saU-notes" placeholder="Internal notes about this user..." style="min-height:50px"></textarea></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button onclick="saSaveUser()" class="btn bp" style="flex:1;padding:12px">💾 Save User</button>
+              <button onclick="document.getElementById('sa-user-form').style.display='none'" class="btn bg" style="flex:1;padding:12px">Cancel</button>
+            </div>
+          </div>
+
+          <!-- Users List -->
+          <div id="sa-users-list"><div style="text-align:center;padding:24px;color:var(--muted);font-size:13px">No users yet. Add your first client above.</div></div>
+        </div>
+
+        <!-- SETTINGS TAB -->
+        <div id="satab-settings-content" style="display:none">
+          <div style="font-size:14px;font-weight:700;color:var(--pri);margin-bottom:14px">App & Subscription Settings</div>
+          <div class="g2">
+            <div class="fg"><label class="lbl">App Name</label><input id="sas-appname" value="COC Manager Pro"></div>
+            <div class="fg"><label class="lbl">Default Trial Days</label><input id="sas-trial" type="number" value="30" min="1"></div>
+            <div class="fg"><label class="lbl">Default Monthly Price (R)</label><input id="sas-price" type="number" value="299"></div>
+            <div class="fg"><label class="lbl">Currency</label>
+              <select id="sas-currency">
+                <option value="ZAR">ZAR — South African Rand</option>
+                <option value="USD">USD — US Dollar</option>
+                <option value="NAD">NAD — Namibian Dollar</option>
+              </select>
+            </div>
+            <div class="fg"><label class="lbl">Your Contact Email</label><input id="sas-email" type="email" placeholder="your@email.com"></div>
+            <div class="fg"><label class="lbl">Your Contact Cell</label><input id="sas-cell" placeholder="082 000 0000"></div>
+          </div>
+          <div style="font-size:13px;font-weight:700;color:var(--pri);margin:16px 0 12px">🏦 EFT Bank Account Details</div>
+          <div class="g2">
+            <div class="fg"><label class="lbl">Account Holder</label><input id="sas-holder" value="Eagle Electrical Ventures"></div>
+            <div class="fg"><label class="lbl">Bank Name</label><input id="sas-bank" value="FNB"></div>
+            <div class="fg"><label class="lbl">Account Number</label><input id="sas-accno" placeholder="62 000 000 000"></div>
+            <div class="fg"><label class="lbl">Branch Code</label><input id="sas-branch" placeholder="250655"></div>
+            <div class="fg"><label class="lbl">Account Type</label>
+              <select id="sas-acctype">
+                <option>Current</option><option>Savings</option><option>Transmission</option>
+              </select>
+            </div>
+            <div class="fg"><label class="lbl">Payment Reference Format</label><input id="sas-ref" value="COC-{name}" placeholder="COC-{name}"></div>
+          </div>
+          <div style="font-size:13px;font-weight:700;color:var(--pri);margin:16px 0 12px">🔐 Change Super Admin Password</div>
+          <div class="g2">
+            <div class="fg"><label class="lbl">Current Password</label><input id="sas-oldpwd" type="password"></div>
+            <div class="fg"><label class="lbl">New Password</label><input id="sas-newpwd" type="password"></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+            <button onclick="saSaveSettings()" class="btn bp" style="flex:1;padding:13px">💾 Save All Settings</button>
+            <button onclick="saChangePwd()" class="btn bg" style="flex:1;padding:13px">🔐 Change Password</button>
+          </div>
+        </div>
+
+        <!-- BILLING TAB -->
+        <div id="satab-billing-content" style="display:none">
+          <div style="font-size:14px;font-weight:700;color:var(--pri);margin-bottom:14px">💳 How Billing Works — EFT Process</div>
+          <div style="background:#E3F5EB;border:1px solid #9FD8B5;border-radius:10px;padding:14px 16px;margin-bottom:16px;font-size:13px;color:#1A5C38;line-height:1.7">
+            <strong>Step 1 — Add the electrician as a user</strong> (Users tab) with trial days set.<br>
+            <strong>Step 2 — Before trial expires</strong>, click "📧 Send Payment Request" on their row — this opens a pre-written email with your EFT details.<br>
+            <strong>Step 3 — When they pay</strong>, come back to Super Admin → Users → set Status to "Active" and update their expiry.<br>
+            <strong>Step 4 — If they don't pay</strong>, set Status to "On Hold" — their app locks.
+          </div>
+          <div id="sa-billing-list"><div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">No users yet.</div></div>
+        </div>
+
+        <!-- STATS TAB -->
+        <div id="satab-stats-content" style="display:none">
+          <div style="font-size:14px;font-weight:700;color:var(--pri);margin-bottom:14px">📊 App Statistics</div>
+          <div class="g2" style="margin-bottom:16px">
+            <div class="card" style="text-align:center"><div style="font-size:28px;font-weight:700;color:var(--pri)" id="stat-sa-total">0</div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px">Total Users</div></div>
+            <div class="card" style="text-align:center"><div style="font-size:28px;font-weight:700;color:var(--ok)" id="stat-sa-active">0</div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px">Active (Paid)</div></div>
+            <div class="card" style="text-align:center"><div style="font-size:28px;font-weight:700;color:var(--acc)" id="stat-sa-trial">0</div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px">On Trial</div></div>
+            <div class="card" style="text-align:center"><div style="font-size:28px;font-weight:700;color:var(--err)" id="stat-sa-hold">0</div><div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px">On Hold / Expired</div></div>
+          </div>
+          <div class="card" style="text-align:center">
+            <div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px">Monthly Recurring Revenue</div>
+            <div style="font-size:36px;font-weight:700;color:var(--ok)" id="stat-sa-mrr">R0</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">from active paid users only</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SUBSCRIPTION LOCKED SCREEN -->
+<div id="sub-locked" style="display:none;position:fixed;inset:0;background:rgba(10,20,50,.92);z-index:900;align-items:center;justify-content:center;flex-direction:column;padding:24px;text-align:center">
+  <div style="background:#fff;border-radius:16px;padding:32px 24px;max-width:420px;width:100%">
+    <div style="font-size:48px;margin-bottom:12px">⏰</div>
+    <div style="font-size:20px;font-weight:700;color:var(--pri);margin-bottom:8px" id="lock-title">Trial Expired</div>
+    <div style="font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:20px" id="lock-msg">Your free trial has ended. To continue using COC Manager Pro, please make an EFT payment and contact Eagle Electrical Ventures to activate your subscription.</div>
+    <div id="lock-eft" style="background:#F8F9FF;border:1px solid var(--border);border-radius:10px;padding:14px;text-align:left;margin-bottom:16px;font-size:13px;line-height:1.8"></div>
+    <a id="lock-email" href="#" style="display:block;background:var(--pri);color:#fff;padding:13px;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none;margin-bottom:10px">📧 Email Payment Confirmation</a>
+    <div style="font-size:11px;color:var(--muted)">Once payment is confirmed, your account will be activated within 24 hours.</div>
+  </div>
+</div>
 
 <!-- DASHBOARD -->
 <div id="screen-dashboard">
+<!-- TRIAL/SUBSCRIPTION BANNER -->
+<div id="trial-banner" style="display:none;margin-bottom:12px"></div>
 <!-- iOS ADD TO HOME SCREEN TIP -->
 <div id="ios-tip" style="display:none;background:#E8F0FB;border:1px solid #B8D0F0;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:#1B3A6B">
   <div style="font-weight:700;margin-bottom:4px">📱 Add to iPhone Home Screen</div>
@@ -507,6 +673,26 @@ const CIRCUITS=[
 // STATE
 // ══════════════════════════════════════════════════════════
 let jobs=[], job=null, step=0, pendPhoto=null, sigTarget=null, sigCtx=null, sigDrawing=false, sigLX=0, sigLY=0;
+
+// ── SUPER ADMIN STATE ─────────────────────────────────────
+var SA_PASSWORD = 'Eagle2026!';
+var SA_LOGGED_IN = false;
+var saSettings = {
+  trialDays: 30,
+  monthlyPrice: 299,
+  currency: 'ZAR',
+  bankName: 'FNB',
+  accountHolder: 'Eagle Electrical Ventures',
+  accountNumber: '',
+  branchCode: '',
+  accountType: 'Current',
+  reference: 'COC-{name}',
+  contactEmail: '',
+  contactCell: '',
+  appName: 'COC Manager Pro'
+};
+var saUsers = []; // [{id, name, email, cell, company, trialDays, trialStart, status, price, notes}]
+var currentUserId = null; // set from login screen
 
 function newJob(){
   const tests={}, insp={}, circuits={};
@@ -2637,10 +2823,380 @@ function flash(msg,col){
   setTimeout(()=>el.style.display='none',3800);
 }
 
-renderDash();
+// ══════════════════════════════════════════════════════════
+// SUPER ADMIN SYSTEM
+// ══════════════════════════════════════════════════════════
+
+function openSuperAdmin(){
+  SA_LOGGED_IN=false;
+  document.getElementById('sa-login').style.display='block';
+  document.getElementById('sa-dash').style.display='none';
+  document.getElementById('sa-pwd').value='';
+  document.getElementById('sa-login-err').style.display='none';
+  om('samodal');
+}
+
+function saLogin(){
+  var pwd=document.getElementById('sa-pwd').value;
+  if(pwd===SA_PASSWORD){
+    SA_LOGGED_IN=true;
+    document.getElementById('sa-login').style.display='none';
+    document.getElementById('sa-dash').style.display='block';
+    saLoadSettings();
+    saTab('users');
+    saRenderUsers();
+    saRenderStats();
+  } else {
+    document.getElementById('sa-login-err').style.display='block';
+    document.getElementById('sa-pwd').value='';
+  }
+}
+
+function saTab(tab){
+  ['users','settings','billing','stats'].forEach(function(t){
+    var c=document.getElementById('satab-'+t+'-content');
+    var b=document.getElementById('satab-'+t);
+    if(c) c.style.display=t===tab?'block':'none';
+    if(b){ b.style.background=t===tab?'var(--pri)':'transparent'; b.style.color=t===tab?'#fff':'var(--pri)'; }
+  });
+  if(tab==='billing') saRenderBilling();
+  if(tab==='stats') saRenderStats();
+  if(tab==='settings') saLoadSettings();
+}
+
+// ── USERS ─────────────────────────────────────────────────
+function saOpenAddUser(){
+  document.getElementById('sa-form-title').textContent='Add New User';
+  document.getElementById('saU-name').value='';
+  document.getElementById('saU-email').value='';
+  document.getElementById('saU-cell').value='';
+  document.getElementById('saU-company').value='';
+  document.getElementById('saU-reg').value='';
+  document.getElementById('saU-status').value='trial';
+  document.getElementById('saU-trial').value=saSettings.trialDays;
+  document.getElementById('saU-price').value=saSettings.monthlyPrice;
+  document.getElementById('saU-notes').value='';
+  document.getElementById('sa-user-form').dataset.editId='';
+  document.getElementById('sa-user-form').style.display='block';
+  document.getElementById('saU-name').focus();
+}
+
+function saEditUser(id){
+  var u=saUsers.find(function(x){return x.id===id;});
+  if(!u) return;
+  document.getElementById('sa-form-title').textContent='Edit User — '+u.name;
+  document.getElementById('saU-name').value=u.name||'';
+  document.getElementById('saU-email').value=u.email||'';
+  document.getElementById('saU-cell').value=u.cell||'';
+  document.getElementById('saU-company').value=u.company||'';
+  document.getElementById('saU-reg').value=u.reg||'';
+  document.getElementById('saU-status').value=u.status||'trial';
+  document.getElementById('saU-trial').value=u.trialDays||saSettings.trialDays;
+  document.getElementById('saU-price').value=u.price||saSettings.monthlyPrice;
+  document.getElementById('saU-notes').value=u.notes||'';
+  document.getElementById('sa-user-form').dataset.editId=id;
+  document.getElementById('sa-user-form').style.display='block';
+  document.getElementById('saU-name').focus();
+}
+
+function saSaveUser(){
+  var name=document.getElementById('saU-name').value.trim();
+  var email=document.getElementById('saU-email').value.trim();
+  if(!name||!email){ flash('Name and email are required','#C0392B'); return; }
+  var editId=document.getElementById('sa-user-form').dataset.editId;
+  var now=new Date().toISOString().split('T')[0];
+  if(editId){
+    var u=saUsers.find(function(x){return x.id===editId;});
+    if(u){
+      u.name=name; u.email=email;
+      u.cell=document.getElementById('saU-cell').value.trim();
+      u.company=document.getElementById('saU-company').value.trim();
+      u.reg=document.getElementById('saU-reg').value.trim();
+      u.status=document.getElementById('saU-status').value;
+      u.trialDays=parseInt(document.getElementById('saU-trial').value)||saSettings.trialDays;
+      u.price=parseFloat(document.getElementById('saU-price').value)||saSettings.monthlyPrice;
+      u.notes=document.getElementById('saU-notes').value.trim();
+    }
+  } else {
+    var trialDays=parseInt(document.getElementById('saU-trial').value)||saSettings.trialDays;
+    var expiry=new Date(Date.now()+trialDays*24*60*60*1000).toISOString().split('T')[0];
+    saUsers.push({
+      id:'u'+Date.now(),
+      name:name, email:email,
+      cell:document.getElementById('saU-cell').value.trim(),
+      company:document.getElementById('saU-company').value.trim(),
+      reg:document.getElementById('saU-reg').value.trim(),
+      status:document.getElementById('saU-status').value,
+      trialDays:parseInt(document.getElementById('saU-trial').value)||saSettings.trialDays,
+      price:parseFloat(document.getElementById('saU-price').value)||saSettings.monthlyPrice,
+      notes:document.getElementById('saU-notes').value.trim(),
+      trialStart:now,
+      expiryDate:expiry,
+      createdAt:now
+    });
+  }
+  document.getElementById('sa-user-form').style.display='none';
+  saRenderUsers();
+  saRenderStats();
+  saStoreSave();
+  flash('✓ User saved successfully');
+}
+
+function saDeleteUser(id){
+  if(!confirm('Delete this user? This cannot be undone.')) return;
+  saUsers=saUsers.filter(function(u){return u.id!==id;});
+  saRenderUsers();
+  saRenderStats();
+  saStoreSave();
+  flash('User deleted','#C0392B');
+}
+
+function saSetStatus(id,status){
+  var u=saUsers.find(function(x){return x.id===id;});
+  if(!u) return;
+  u.status=status;
+  if(status==='active'){
+    var exp=new Date(Date.now()+30*24*60*60*1000).toISOString().split('T')[0];
+    u.expiryDate=exp;
+  }
+  saRenderUsers();
+  saRenderStats();
+  saStoreSave();
+  flash('✓ Status updated to '+status);
+}
+
+function saTrialDaysLeft(u){
+  if(!u.expiryDate) return u.trialDays||30;
+  var diff=Math.ceil((new Date(u.expiryDate)-Date.now())/(1000*60*60*24));
+  return diff;
+}
+
+function saStatusBadge(u){
+  var days=saTrialDaysLeft(u);
+  if(u.status==='active') return '<span style="background:#E3F5EB;color:#1A7A4A;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700">🟢 Active</span>';
+  if(u.status==='hold') return '<span style="background:#FDEAEA;color:#C0392B;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700">🔴 On Hold</span>';
+  if(u.status==='expired'||days<=0) return '<span style="background:#F0F2F8;color:#6B7A99;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700">⚫ Expired</span>';
+  var col=days<=5?'#C0392B':days<=14?'#E8A020':'#1B3A6B';
+  return '<span style="background:#FFF8E6;color:'+col+';padding:2px 8px;border-radius:4px;font-size:11px;font-weight:700">🟡 Trial: '+days+'d left</span>';
+}
+
+function saRenderUsers(){
+  var el=document.getElementById('sa-users-list');
+  document.getElementById('sa-user-count').textContent=saUsers.length;
+  if(!saUsers.length){ el.innerHTML='<div style="text-align:center;padding:24px;color:var(--muted);font-size:13px">No users yet.</div>'; return; }
+  el.innerHTML=saUsers.map(function(u){
+    var days=saTrialDaysLeft(u);
+    return `<div style="border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;background:#FAFBFF">
+      <div style="display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap">
+        <div style="flex:1;min-width:160px">
+          <div style="font-weight:700;font-size:14px;color:var(--pri)">${esc(u.name)}</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">${esc(u.email)}${u.cell?' · '+esc(u.cell):''}</div>
+          ${u.company?`<div style="font-size:12px;color:var(--muted)">${esc(u.company)}${u.reg?' · '+esc(u.reg):''}</div>`:''}
+          <div style="margin-top:6px">${saStatusBadge(u)}</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-size:13px;font-weight:700;color:var(--ok)">R${u.price||saSettings.monthlyPrice}/mo</div>
+          <div style="font-size:11px;color:var(--muted)">Exp: ${u.expiryDate||'—'}</div>
+        </div>
+      </div>
+      ${u.notes?`<div style="font-size:12px;color:var(--muted);margin-top:8px;font-style:italic">${esc(u.notes)}</div>`:''}
+      <div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap">
+        <button onclick="saEditUser('${u.id}')" style="background:#EEF2FA;border:none;border-radius:6px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;color:var(--pri);font-family:'DM Sans',sans-serif">✏️ Edit</button>
+        <button onclick="saSetStatus('${u.id}','active')" style="background:#E3F5EB;border:none;border-radius:6px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;color:#1A7A4A;font-family:'DM Sans',sans-serif">✓ Activate</button>
+        <button onclick="saSetStatus('${u.id}','hold')" style="background:#FFF8E6;border:none;border-radius:6px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;color:#7A5A10;font-family:'DM Sans',sans-serif">⏸ Hold</button>
+        <button onclick="saSendPaymentEmail('${u.id}')" style="background:#E8F0FB;border:none;border-radius:6px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;color:var(--pri);font-family:'DM Sans',sans-serif">📧 Payment Request</button>
+        <button onclick="saDeleteUser('${u.id}')" style="background:#FDEAEA;border:none;border-radius:6px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;color:var(--err);font-family:'DM Sans',sans-serif">🗑 Delete</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function saSendPaymentEmail(id){
+  var u=saUsers.find(function(x){return x.id===id;});
+  if(!u) return;
+  var ref=(saSettings.reference||'COC-{name}').replace('{name}',u.name.split(' ')[0].toUpperCase());
+  var body='Dear '+u.name+',\n\nThank you for using COC Manager Pro.\n\n'+
+    'Your '+(u.status==='trial'?'free trial period is ending':'subscription is due for renewal')+'.\n\n'+
+    'To continue using the app, please make an EFT payment:\n\n'+
+    'Account Holder: '+saSettings.accountHolder+'\n'+
+    'Bank: '+saSettings.bankName+'\n'+
+    'Account Number: '+saSettings.accountNumber+'\n'+
+    'Branch Code: '+saSettings.branchCode+'\n'+
+    'Account Type: '+saSettings.accountType+'\n'+
+    'Amount: R'+((u.price||saSettings.monthlyPrice).toFixed(2))+'/month\n'+
+    'Reference: '+ref+'\n\n'+
+    'Once payment is received, your account will be activated within 24 hours.\n\n'+
+    'For any queries, contact us:\n'+
+    (saSettings.contactEmail?'Email: '+saSettings.contactEmail+'\n':'')+
+    (saSettings.contactCell?'Cell: '+saSettings.contactCell+'\n':'')+
+    '\nKind regards,\nEagle Electrical Ventures\nCOC Manager Pro';
+  var subject='COC Manager Pro — Subscription Payment Required';
+  window.location.href='mailto:'+u.email+'?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+}
+
+// ── SETTINGS ──────────────────────────────────────────────
+function saLoadSettings(){
+  document.getElementById('sas-appname').value=saSettings.appName||'COC Manager Pro';
+  document.getElementById('sas-trial').value=saSettings.trialDays||30;
+  document.getElementById('sas-price').value=saSettings.monthlyPrice||299;
+  document.getElementById('sas-currency').value=saSettings.currency||'ZAR';
+  document.getElementById('sas-email').value=saSettings.contactEmail||'';
+  document.getElementById('sas-cell').value=saSettings.contactCell||'';
+  document.getElementById('sas-holder').value=saSettings.accountHolder||'Eagle Electrical Ventures';
+  document.getElementById('sas-bank').value=saSettings.bankName||'FNB';
+  document.getElementById('sas-accno').value=saSettings.accountNumber||'';
+  document.getElementById('sas-branch').value=saSettings.branchCode||'';
+  document.getElementById('sas-acctype').value=saSettings.accountType||'Current';
+  document.getElementById('sas-ref').value=saSettings.reference||'COC-{name}';
+}
+
+function saSaveSettings(){
+  saSettings.appName=document.getElementById('sas-appname').value;
+  saSettings.trialDays=parseInt(document.getElementById('sas-trial').value)||30;
+  saSettings.monthlyPrice=parseFloat(document.getElementById('sas-price').value)||299;
+  saSettings.currency=document.getElementById('sas-currency').value;
+  saSettings.contactEmail=document.getElementById('sas-email').value;
+  saSettings.contactCell=document.getElementById('sas-cell').value;
+  saSettings.accountHolder=document.getElementById('sas-holder').value;
+  saSettings.bankName=document.getElementById('sas-bank').value;
+  saSettings.accountNumber=document.getElementById('sas-accno').value;
+  saSettings.branchCode=document.getElementById('sas-branch').value;
+  saSettings.accountType=document.getElementById('sas-acctype').value;
+  saSettings.reference=document.getElementById('sas-ref').value;
+  saStoreSave();
+  flash('✓ Settings saved');
+}
+
+function saChangePwd(){
+  var old=document.getElementById('sas-oldpwd').value;
+  var nw=document.getElementById('sas-newpwd').value;
+  if(old!==SA_PASSWORD){ flash('Current password is incorrect','#C0392B'); return; }
+  if(nw.length<6){ flash('New password must be at least 6 characters','#C0392B'); return; }
+  SA_PASSWORD=nw;
+  saStoreSave();
+  document.getElementById('sas-oldpwd').value='';
+  document.getElementById('sas-newpwd').value='';
+  flash('✓ Password changed successfully');
+}
+
+// ── BILLING ───────────────────────────────────────────────
+function saRenderBilling(){
+  var el=document.getElementById('sa-billing-list');
+  if(!saUsers.length){ el.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">No users yet.</div>'; return; }
+  el.innerHTML=`<table style="width:100%;border-collapse:collapse;font-size:12px">
+    <thead><tr style="background:#EEF2FA">
+      <th style="padding:8px;text-align:left;border:1px solid var(--border);color:var(--pri)">Name</th>
+      <th style="padding:8px;border:1px solid var(--border);color:var(--pri)">Email</th>
+      <th style="padding:8px;border:1px solid var(--border);color:var(--pri)">Price</th>
+      <th style="padding:8px;border:1px solid var(--border);color:var(--pri)">Status</th>
+      <th style="padding:8px;border:1px solid var(--border);color:var(--pri)">Expiry</th>
+      <th style="padding:8px;border:1px solid var(--border);color:var(--pri)">Action</th>
+    </tr></thead>
+    <tbody>`+saUsers.map(function(u,i){
+      return `<tr style="background:${i%2?'#F5F7FC':'#fff'}">
+        <td style="padding:7px 8px;border:1px solid var(--border);font-weight:600">${esc(u.name)}</td>
+        <td style="padding:7px 8px;border:1px solid var(--border)">${esc(u.email)}</td>
+        <td style="padding:7px 8px;border:1px solid var(--border);font-weight:600;color:var(--ok)">R${u.price||saSettings.monthlyPrice}/mo</td>
+        <td style="padding:7px 8px;border:1px solid var(--border)">${saStatusBadge(u)}</td>
+        <td style="padding:7px 8px;border:1px solid var(--border)">${u.expiryDate||'—'}</td>
+        <td style="padding:7px 8px;border:1px solid var(--border)">
+          <button onclick="saSendPaymentEmail('${u.id}')" style="background:var(--pri);color:#fff;border:none;border-radius:5px;padding:5px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">📧 Request</button>
+        </td>
+      </tr>`;
+    }).join('')+'</tbody></table>';
+}
+
+// ── STATS ─────────────────────────────────────────────────
+function saRenderStats(){
+  var total=saUsers.length;
+  var active=saUsers.filter(function(u){return u.status==='active';}).length;
+  var trial=saUsers.filter(function(u){return u.status==='trial'&&saTrialDaysLeft(u)>0;}).length;
+  var hold=saUsers.filter(function(u){return u.status==='hold'||u.status==='expired'||saTrialDaysLeft(u)<=0;}).length;
+  var mrr=saUsers.filter(function(u){return u.status==='active';}).reduce(function(s,u){return s+(parseFloat(u.price)||saSettings.monthlyPrice);},0);
+  var s=function(id,v){ var el=document.getElementById(id); if(el) el.textContent=v; };
+  s('stat-sa-total',total); s('stat-sa-active',active); s('stat-sa-trial',trial); s('stat-sa-hold',hold);
+  s('stat-sa-mrr','R'+mrr.toFixed(0));
+}
+
+// ── TRIAL BANNER (shown to regular users) ─────────────────
+function updateTrialBanner(){
+  var el=document.getElementById('trial-banner');
+  if(!el) return;
+  // Check if current user has a subscription record
+  var myEmail=bizName; // Using bizName as user identifier for now
+  // For demo: show trial status based on localStorage saved subscription
+  var sub=null;
+  try{ sub=JSON.parse(localStorage.getItem('cocmanager_sub')||'null'); }catch(e){}
+  if(!sub){
+    // New user — show generic trial info if set up
+    el.style.display='none';
+    return;
+  }
+  var days=Math.ceil((new Date(sub.expiry)-Date.now())/(1000*60*60*24));
+  if(sub.status==='active'){
+    el.style.display='block';
+    el.innerHTML='<div style="background:#E3F5EB;border:1px solid #9FD8B5;border-radius:8px;padding:10px 14px;font-size:13px;color:#1A7A4A;display:flex;align-items:center;gap:10px"><span>✅</span><span><strong>Subscription Active</strong> — expires '+sub.expiry+'</span></div>';
+  } else if(days>0){
+    var col=days<=5?'#FDEAEA':days<=14?'#FFF8E6':'#E8F0FB';
+    var tcol=days<=5?'#C0392B':days<=14?'#7A5A10':'#1B3A6B';
+    el.style.display='block';
+    el.innerHTML='<div style="background:'+col+';border:1px solid rgba(0,0,0,.1);border-radius:8px;padding:10px 14px;font-size:13px;color:'+tcol+';display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span>⏰</span><span style="flex:1"><strong>Free Trial: '+days+' day'+(days!==1?'s':'')+' remaining</strong> — subscribe to continue using COC Manager Pro</span><button onclick="showLockScreen()" style="background:'+tcol+';color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:\'DM Sans\',sans-serif">Subscribe →</button></div>';
+  } else {
+    showLockScreen();
+  }
+}
+
+function showLockScreen(){
+  var sub=null;
+  try{ sub=JSON.parse(localStorage.getItem('cocmanager_sub')||'null'); }catch(e){}
+  var el=document.getElementById('lock-eft');
+  if(el){
+    el.innerHTML='<strong>🏦 EFT Payment Details</strong><br>'+
+      'Account Holder: <strong>'+saSettings.accountHolder+'</strong><br>'+
+      'Bank: <strong>'+saSettings.bankName+'</strong><br>'+
+      (saSettings.accountNumber?'Account: <strong>'+saSettings.accountNumber+'</strong><br>':'')+
+      (saSettings.branchCode?'Branch Code: <strong>'+saSettings.branchCode+'</strong><br>':'')+
+      'Account Type: <strong>'+saSettings.accountType+'</strong><br>'+
+      'Amount: <strong>R'+saSettings.monthlyPrice+'/month</strong><br>'+
+      'Reference: <strong>'+(saSettings.reference||'COC-PRO')+'</strong>';
+  }
+  var emailEl=document.getElementById('lock-email');
+  if(emailEl&&saSettings.contactEmail){
+    emailEl.href='mailto:'+saSettings.contactEmail+'?subject=COC+Manager+Pro+Subscription&body=Hi%2C+I+have+made+payment+for+COC+Manager+Pro+subscription.+Please+activate+my+account.';
+  }
+  var lock=document.getElementById('sub-locked');
+  if(lock) lock.style.display='flex';
+}
+
+// ── STORAGE ───────────────────────────────────────────────
+function saStoreSave(){
+  try{
+    localStorage.setItem('cocmanager_sa_users',JSON.stringify(saUsers));
+    localStorage.setItem('cocmanager_sa_settings',JSON.stringify(saSettings));
+    localStorage.setItem('cocmanager_sa_pwd',SA_PASSWORD);
+  }catch(e){}
+}
+
+function saStoreLoad(){
+  try{
+    var u=localStorage.getItem('cocmanager_sa_users');
+    if(u) saUsers=JSON.parse(u);
+    var s=localStorage.getItem('cocmanager_sa_settings');
+    if(s) saSettings=Object.assign(saSettings,JSON.parse(s));
+    var p=localStorage.getItem('cocmanager_sa_pwd');
+    if(p) SA_PASSWORD=p;
+  }catch(e){}
+}
+
+// ══════════════════════════════════════════════════════════
+// END SUPER ADMIN
+// ══════════════════════════════════════════════════════════
+
+saStoreLoad();
 loadFromStorage();
-renderDash(); // re-render after loading saved jobs
+renderDash();
 setTimeout(applyLogo,100);
+setTimeout(updateTrialBanner,500);
 </script>
 
 <script>
