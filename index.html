@@ -20,11 +20,29 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'DM Sans',sans-serif;background:#F4F6FA;color:#1A2340;min-height:100vh}
 :root{--pri:#1B3A6B;--acc:#E8A020;--ok:#1A7A4A;--err:#C0392B;--border:#DDE2EE;--muted:#6B7A99;--card:#fff}
-nav{background:var(--pri);height:52px;display:flex;align-items:center;padding:0 20px;gap:4px;box-shadow:0 2px 10px rgba(27,58,107,.2);position:sticky;top:0;z-index:100}
-.brand{color:#fff;font-weight:700;font-size:15px;flex:1;line-height:1.2}
-.brand small{display:block;color:rgba(255,255,255,.45);font-size:10px;font-weight:400}
-.nb{background:transparent;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,.6);padding:0 11px;height:52px;cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;transition:all .15s}
+nav{background:var(--pri);height:52px;display:flex;align-items:center;padding:0 6px;gap:2px;box-shadow:0 2px 10px rgba(27,58,107,.2);position:sticky;top:0;z-index:100;overflow:hidden}
+.brand{color:#fff;font-weight:700;font-size:12px;flex:1;line-height:1.2;white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis;max-width:90px}
+.brand small{display:none}
+.nb{background:transparent;border:none;border-bottom:2px solid transparent;color:rgba(255,255,255,.65);padding:0 4px;height:52px;cursor:pointer;font-size:9px;font-weight:700;font-family:'DM Sans',sans-serif;transition:all .15s;white-space:nowrap;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-width:40px}
 .nb.active{color:#fff;border-bottom-color:var(--acc);background:rgba(255,255,255,.1)}
+.nb-tool{border:1px solid var(--bd,rgba(255,255,255,.25));background:var(--bg,rgba(255,255,255,.1));color:var(--tc,#fff);padding:0 5px;height:36px;border-radius:6px;cursor:pointer;font-size:9px;font-weight:700;font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;flex-shrink:0;min-width:40px}
+.nb-tool:active{opacity:.8}
+.nav-icon{font-size:15px;line-height:1}
+.nav-txt{font-size:9px;font-weight:700;line-height:1}
+@media(min-width:420px){
+  .brand{max-width:120px;font-size:13px}
+  .nb{min-width:46px;padding:0 5px;font-size:10px}
+  .nb-tool{min-width:46px;font-size:10px}
+}
+@media(min-width:560px){
+  nav{padding:0 10px;gap:4px}
+  .brand{max-width:none;font-size:14px}
+  .brand small{display:block}
+  .nb{min-width:56px;padding:0 8px;font-size:11px;flex-direction:row;gap:4px}
+  .nb-tool{min-width:56px;padding:0 8px;height:32px;flex-direction:row;gap:4px;font-size:11px}
+  .nav-icon{font-size:13px}
+  .nav-txt{font-size:11px}
+}
 .main{padding:22px 18px;max-width:920px;margin:0 auto}
 .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:14px}
 .ct{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.9px;margin-bottom:14px}
@@ -168,12 +186,12 @@ textarea{resize:vertical;min-height:65px}
 
 <nav>
   <div class="brand">COC Manager Pro <small>SANS 10142-1 · Dept of Labour Annexure 1</small></div>
-  <button class="nb active" id="nd" onclick="showScreen('dashboard')">Dashboard</button>
-  <button class="nb" id="nj" onclick="showScreen('all-jobs')">All Jobs</button>
-  <button class="nb" id="nc" onclick="showScreen('job')" style="display:none">Current Job</button>
-  <button onclick="showSANSRef()" style="background:rgba(232,160,32,.18);border:1px solid rgba(232,160,32,.5);color:#F5C842;padding:0 10px;height:32px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:4px;margin-left:4px;white-space:nowrap;flex-shrink:0" title="SANS 10142-1 Clause Reference">📖 SANS 10142-1</button>
-  <button onclick="showHTGuide()" style="background:rgba(26,122,74,.25);border:1px solid rgba(26,122,74,.5);color:#5DD68A;padding:0 10px;height:32px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:4px;margin-left:4px;white-space:nowrap;flex-shrink:0">🔌 Test Guide</button>
-  <button onclick="openSuperAdmin()" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:rgba(255,255,255,.8);padding:0 10px;height:32px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:4px;margin-left:4px;white-space:nowrap;flex-shrink:0">🔐 Admin</button>
+  <button class="nb active" id="nd" onclick="showScreen('dashboard')"><span class="nav-icon">🏠</span><span class="nav-txt">Home</span></button>
+  <button class="nb" id="nj" onclick="showScreen('all-jobs')"><span class="nav-icon">📋</span><span class="nav-txt">Jobs</span></button>
+  <button class="nb" id="nc" onclick="showScreen('job')" style="display:none"><span class="nav-icon">✏️</span><span class="nav-txt">Job</span></button>
+  <button onclick="showSANSRef()" class="nb-tool" title="SANS 10142-1" style="--tc:#F5C842;--bg:rgba(232,160,32,.18);--bd:rgba(232,160,32,.5)"><span class="nav-icon">📖</span><span class="nav-txt">SANS</span></button>
+  <button onclick="showHTGuide()" class="nb-tool" title="Test Guide" style="--tc:#5DD68A;--bg:rgba(26,122,74,.25);--bd:rgba(26,122,74,.5)"><span class="nav-icon">🔌</span><span class="nav-txt">Guide</span></button>
+  <button onclick="openSuperAdmin()" class="nb-tool" title="Admin" style="--tc:rgba(255,255,255,.85);--bg:rgba(255,255,255,.1);--bd:rgba(255,255,255,.25)"><span class="nav-icon">🔐</span><span class="nav-txt">Admin</span></button>
 </nav>
 
 <div id="flash" class="flash" style="display:none"></div>
@@ -368,6 +386,7 @@ textarea{resize:vertical;min-height:65px}
               <div class="fg"><label class="lbl">Cell Number</label><input id="saU-cell" placeholder="082 000 0000"></div>
               <div class="fg"><label class="lbl">Company Name</label><input id="saU-company" placeholder="e.g. Van der Merwe Electrical"></div>
               <div class="fg"><label class="lbl">DEL Reg Number</label><input id="saU-reg" placeholder="IE-12345"></div>
+              <div class="fg"><label class="lbl">Password *</label><input id="saU-pwd" type="text" placeholder="Set their login password"></div>
               <div class="fg"><label class="lbl">Status</label>
                 <select id="saU-status">
                   <option value="trial">🟡 Trial</option>
@@ -460,6 +479,41 @@ textarea{resize:vertical;min-height:65px}
         </div>
 
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOGIN SCREEN — shown before anything else -->
+<div id="login-screen" style="display:none;position:fixed;inset:0;z-index:800;background:linear-gradient(135deg,#0D1E3C 0%,#1B3A6B 60%,#2A5298 100%);align-items:center;justify-content:center;padding:20px">
+  <div style="background:#fff;border-radius:20px;padding:32px 24px;max-width:380px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.4)">
+    <!-- Logo -->
+    <div style="text-align:center;margin-bottom:24px">
+      <div id="login-logo-wrap" style="width:72px;height:72px;border-radius:16px;background:linear-gradient(135deg,#1B3A6B,#2A5298);display:inline-flex;align-items:center;justify-content:center;margin-bottom:12px;overflow:hidden">
+        <img id="login-logo-img" src="" style="display:none;width:100%;height:100%;object-fit:contain">
+        <span id="login-logo-text" style="font-size:28px">⚡</span>
+      </div>
+      <div style="font-size:20px;font-weight:700;color:#1B3A6B">COC Manager Pro</div>
+      <div style="font-size:12px;color:#6B7A99;margin-top:2px">SANS 10142-1 · Dept of Labour</div>
+    </div>
+
+    <!-- Form -->
+    <div style="margin-bottom:14px">
+      <label style="font-size:11px;font-weight:700;color:#6B7A99;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:5px">Email Address</label>
+      <input id="login-email" type="email" placeholder="your@email.com" style="width:100%;border:1px solid #DDE2EE;border-radius:8px;padding:13px 14px;font-size:16px;color:#1A2340;background:#FAFBFF;font-family:'DM Sans',sans-serif;outline:none;box-sizing:border-box" onkeydown="if(event.key==='Enter')document.getElementById('login-pwd').focus()">
+    </div>
+    <div style="margin-bottom:20px">
+      <label style="font-size:11px;font-weight:700;color:#6B7A99;text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:5px">Password</label>
+      <input id="login-pwd" type="password" placeholder="Your password" style="width:100%;border:1px solid #DDE2EE;border-radius:8px;padding:13px 14px;font-size:16px;color:#1A2340;background:#FAFBFF;font-family:'DM Sans',sans-serif;outline:none;box-sizing:border-box" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+
+    <div id="login-err" style="display:none;background:#FDEAEA;border:1px solid #F5A0A0;border-radius:8px;padding:10px 12px;font-size:13px;color:#C0392B;margin-bottom:14px;line-height:1.5"></div>
+    <div id="login-loading" style="display:none;text-align:center;color:#6B7A99;font-size:13px;padding:8px">Checking your account...</div>
+
+    <button onclick="doLogin()" style="width:100%;background:#1B3A6B;color:#fff;border:none;border-radius:10px;padding:14px;font-size:16px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;margin-bottom:12px">Sign In →</button>
+
+    <div style="text-align:center;font-size:11px;color:#6B7A99;line-height:1.6">Not registered? Contact Eagle Electrical Ventures<br>to get access to COC Manager Pro.</div>
+    <div style="text-align:center;margin-top:12px">
+      <a href="mailto:info@eagleelectrical.co.za" style="font-size:12px;color:#1B3A6B;font-weight:600;text-decoration:none">📧 info@eagleelectrical.co.za</a>
     </div>
   </div>
 </div>
@@ -2824,6 +2878,136 @@ function flash(msg,col){
 }
 
 // ══════════════════════════════════════════════════════════
+// USER LOGIN SYSTEM
+// ══════════════════════════════════════════════════════════
+var currentUser = null; // logged-in user object
+
+function initApp(){
+  saStoreLoad();
+  loadFromStorage();
+
+  // Check for saved session
+  var session=null;
+  try{ session=JSON.parse(localStorage.getItem('cocmanager_session')||'null'); }catch(e){}
+
+  if(session&&session.userId){
+    // Validate session user still exists and is active
+    var u=saUsers.find(function(x){return x.id===session.userId;});
+    if(u){
+      currentUser=u;
+      launchApp(u);
+      return;
+    }
+  }
+
+  // No valid session — show login if users exist, else go straight in (first-time setup)
+  if(saUsers.length>0){
+    showLoginScreen();
+  } else {
+    // No users registered yet — open app directly (Super Admin first-time setup mode)
+    launchApp(null);
+  }
+}
+
+function showLoginScreen(){
+  document.getElementById('login-screen').style.display='flex';
+  // Pre-fill logo on login screen if set
+  if(bizLogo){
+    document.getElementById('login-logo-img').src=bizLogo;
+    document.getElementById('login-logo-img').style.display='block';
+    document.getElementById('login-logo-text').style.display='none';
+  }
+  if(bizName){
+    // Could update app name on login screen
+  }
+  document.getElementById('login-email').focus();
+}
+
+function doLogin(){
+  var email=document.getElementById('login-email').value.trim().toLowerCase();
+  var pwd=document.getElementById('login-pwd').value;
+  var errEl=document.getElementById('login-err');
+  var loadEl=document.getElementById('login-loading');
+  errEl.style.display='none';
+  if(!email||!pwd){ errEl.textContent='Please enter your email and password.'; errEl.style.display='block'; return; }
+  loadEl.style.display='block';
+
+  setTimeout(function(){
+    loadEl.style.display='none';
+    var u=saUsers.find(function(x){return x.email===email&&x.password===pwd;});
+    if(!u){
+      errEl.textContent='Incorrect email or password. Contact Eagle Electrical Ventures if you need help.';
+      errEl.style.display='block';
+      document.getElementById('login-pwd').value='';
+      return;
+    }
+
+    // Check account status
+    var days=saTrialDaysLeft(u);
+    if(u.status==='hold'){
+      errEl.textContent='Your account is currently on hold. Please contact Eagle Electrical Ventures to reactivate.';
+      errEl.style.display='block';
+      return;
+    }
+    if(u.status==='expired'||(u.status==='trial'&&days<=0)){
+      errEl.textContent='Your '+(u.status==='trial'?'free trial':'subscription')+' has expired. Please contact Eagle Electrical Ventures to continue.';
+      errEl.style.display='block';
+      // Show EFT details
+      showLockScreen();
+      document.getElementById('login-screen').style.display='none';
+      return;
+    }
+
+    // Valid login — save session
+    currentUser=u;
+    try{ localStorage.setItem('cocmanager_session',JSON.stringify({userId:u.id,email:u.email,loginAt:new Date().toISOString()})); }catch(e){}
+    launchApp(u);
+  }, 600);
+}
+
+function launchApp(u){
+  document.getElementById('login-screen').style.display='none';
+  renderDash();
+  setTimeout(applyLogo,100);
+  if(u){
+    updateTrialBanner(u);
+    // Pre-fill electrician name from user profile if not already set
+    if(u.name && !bizName){
+      bizName=u.company||u.name;
+    }
+  }
+}
+
+function logoutUser(){
+  if(!confirm('Sign out of COC Manager Pro?')) return;
+  currentUser=null;
+  try{ localStorage.removeItem('cocmanager_session'); }catch(e){}
+  document.getElementById('login-email').value='';
+  document.getElementById('login-pwd').value='';
+  document.getElementById('login-err').style.display='none';
+  showLoginScreen();
+}
+
+// Override updateTrialBanner to use logged-in user
+function updateTrialBanner(u){
+  var el=document.getElementById('trial-banner');
+  if(!el) return;
+  if(!u){ el.style.display='none'; return; }
+  var days=saTrialDaysLeft(u);
+  if(u.status==='active'){
+    el.style.display='block';
+    el.innerHTML='<div style="background:#E3F5EB;border:1px solid #9FD8B5;border-radius:8px;padding:10px 14px;font-size:13px;color:#1A7A4A;display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span>✅</span><span style="flex:1"><strong>Subscription Active</strong> — Welcome, '+esc(u.name)+'</span><button onclick="logoutUser()" style="background:rgba(26,122,74,.15);border:1px solid #9FD8B5;color:#1A7A4A;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:\'DM Sans\',sans-serif">Sign Out</button></div>';
+  } else if(days>0){
+    var col=days<=5?'#FDEAEA':days<=14?'#FFF8E6':'#E8F0FB';
+    var tcol=days<=5?'#C0392B':days<=14?'#7A5A10':'#1B3A6B';
+    el.style.display='block';
+    el.innerHTML='<div style="background:'+col+';border:1px solid rgba(0,0,0,.1);border-radius:8px;padding:10px 14px;font-size:13px;color:'+tcol+';display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span>⏰</span><span style="flex:1"><strong>Trial: '+days+' day'+(days!==1?'s':'')+' left</strong> — Welcome, '+esc(u.name)+'</span><button onclick="logoutUser()" style="background:rgba(0,0,0,.08);border:none;color:'+tcol+';border-radius:6px;padding:5px 10px;font-size:11px;font-weight:600;cursor:pointer;font-family:\'DM Sans\',sans-serif">Sign Out</button></div>';
+  } else {
+    showLockScreen();
+  }
+}
+
+// ══════════════════════════════════════════════════════════
 // SUPER ADMIN SYSTEM
 // ══════════════════════════════════════════════════════════
 
@@ -2872,6 +3056,7 @@ function saOpenAddUser(){
   document.getElementById('saU-cell').value='';
   document.getElementById('saU-company').value='';
   document.getElementById('saU-reg').value='';
+  document.getElementById('saU-pwd').value='';
   document.getElementById('saU-status').value='trial';
   document.getElementById('saU-trial').value=saSettings.trialDays;
   document.getElementById('saU-price').value=saSettings.monthlyPrice;
@@ -2890,6 +3075,7 @@ function saEditUser(id){
   document.getElementById('saU-cell').value=u.cell||'';
   document.getElementById('saU-company').value=u.company||'';
   document.getElementById('saU-reg').value=u.reg||'';
+  document.getElementById('saU-pwd').value=u.password||'';
   document.getElementById('saU-status').value=u.status||'trial';
   document.getElementById('saU-trial').value=u.trialDays||saSettings.trialDays;
   document.getElementById('saU-price').value=u.price||saSettings.monthlyPrice;
@@ -2901,14 +3087,17 @@ function saEditUser(id){
 
 function saSaveUser(){
   var name=document.getElementById('saU-name').value.trim();
-  var email=document.getElementById('saU-email').value.trim();
+  var email=document.getElementById('saU-email').value.trim().toLowerCase();
+  var pwd=document.getElementById('saU-pwd').value.trim();
   if(!name||!email){ flash('Name and email are required','#C0392B'); return; }
   var editId=document.getElementById('sa-user-form').dataset.editId;
+  if(!editId&&!pwd){ flash('Password is required for new users','#C0392B'); return; }
   var now=new Date().toISOString().split('T')[0];
   if(editId){
     var u=saUsers.find(function(x){return x.id===editId;});
     if(u){
       u.name=name; u.email=email;
+      if(pwd) u.password=pwd; // only update password if a new one was entered
       u.cell=document.getElementById('saU-cell').value.trim();
       u.company=document.getElementById('saU-company').value.trim();
       u.reg=document.getElementById('saU-reg').value.trim();
@@ -2918,16 +3107,20 @@ function saSaveUser(){
       u.notes=document.getElementById('saU-notes').value.trim();
     }
   } else {
+    // Check email not already registered
+    if(saUsers.find(function(x){return x.email===email;})){
+      flash('A user with this email already exists','#C0392B'); return;
+    }
     var trialDays=parseInt(document.getElementById('saU-trial').value)||saSettings.trialDays;
     var expiry=new Date(Date.now()+trialDays*24*60*60*1000).toISOString().split('T')[0];
     saUsers.push({
       id:'u'+Date.now(),
-      name:name, email:email,
+      name:name, email:email, password:pwd,
       cell:document.getElementById('saU-cell').value.trim(),
       company:document.getElementById('saU-company').value.trim(),
       reg:document.getElementById('saU-reg').value.trim(),
       status:document.getElementById('saU-status').value,
-      trialDays:parseInt(document.getElementById('saU-trial').value)||saSettings.trialDays,
+      trialDays:trialDays,
       price:parseFloat(document.getElementById('saU-price').value)||saSettings.monthlyPrice,
       notes:document.getElementById('saU-notes').value.trim(),
       trialStart:now,
@@ -3192,11 +3385,7 @@ function saStoreLoad(){
 // END SUPER ADMIN
 // ══════════════════════════════════════════════════════════
 
-saStoreLoad();
-loadFromStorage();
-renderDash();
-setTimeout(applyLogo,100);
-setTimeout(updateTrialBanner,500);
+initApp();
 </script>
 
 <script>
