@@ -550,7 +550,7 @@ function newJob(){
     s55Type:'authority', s55RegNo:'', s55Competency:'', s55Category:'', s55RegNo2:'',
     s55Name:'', s55Address:'', s55Sig:null, s55Date:'',
     // Photos & additional sigs
-    photos:[], sigOwner:null, sigOwnerName:'', sigContractor:null,
+    photos:[], docs:[], sigOwner:null, sigOwnerName:'', sigContractor:null,
     comments:'', commentsNotCovered:'',
     // Room Inspection form
     clientName:'', inspAddress:'',
@@ -1249,6 +1249,20 @@ function r5(){
 // STEP 9: PHOTOS & CLIENT SIGNATURES
 // ══════════════════════════════════════════════════════════
 function r9(){
+  const docs=job.docs||[];
+  const docRows=docs.map((d,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)">
+      <div style="width:38px;height:38px;border-radius:8px;background:#EEF2FA;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0">
+        ${d.type.includes('pdf')?'📄':d.type.includes('word')||d.type.includes('doc')?'📝':d.type.includes('sheet')||d.type.includes('excel')||d.type.includes('csv')?'📊':d.type.includes('image')?'🖼':'📎'}
+      </div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(d.name)}</div>
+        <div style="font-size:11px;color:var(--muted)">${d.sizeLabel} · ${esc(d.category)}</div>
+      </div>
+      <a href="${d.data}" download="${esc(d.name)}" style="background:#EEF2FA;border:none;border-radius:6px;padding:6px 10px;font-size:12px;font-weight:600;color:var(--pri);text-decoration:none;flex-shrink:0">⬇</a>
+      <button onclick="delDoc(${i})" style="background:var(--err);color:#fff;border:none;border-radius:6px;padding:6px 10px;font-size:12px;font-weight:600;cursor:pointer;flex-shrink:0">✕</button>
+    </div>`).join('');
+
   const photos=job.photos||[];
   const thumbs=photos.map((p,i)=>`
     <div class="pthumb">
@@ -1278,6 +1292,21 @@ function r9(){
       </button>
     </div>
     <input type="file" id="pinput" accept="image/*" multiple style="display:none" oninput="handlePhotos(this)">
+  </div>
+  <div class="card">
+    <div class="ct">Additional Documents (${docs.length})</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Attach any supporting documents — previous COCs, DB schedules, solar compliance docs, permits, wiring diagrams, invoices.</p>
+    ${docs.length?`<div style="margin-bottom:12px">${docRows}</div>`:''}
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn bp" onclick="document.getElementById('docinput').click()" style="flex:1;min-width:140px;padding:14px">
+        📎 Upload Documents
+      </button>
+      <button class="btn bg" onclick="document.getElementById('docinput').click()" style="flex:1;min-width:140px;padding:14px">
+        🖼 Upload Images / Diagrams
+      </button>
+    </div>
+    <input type="file" id="docinput" accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.png,.jpg,.jpeg,.gif,.bmp,.tiff,.txt,.zip" multiple style="display:none" oninput="handleDocs(this)">
+    <div style="margin-top:10px;font-size:11px;color:var(--muted)">Supported: PDF, Word, Excel, CSV, Images, Text, ZIP · Max 10MB per file</div>
   </div>
   <div class="card">
     <div class="ct">Client / Owner & Contractor Signatures</div>
@@ -1331,7 +1360,7 @@ function r10(){
   <div class="card" style="border-left:4px solid ${sc}">
     <div style="display:flex;justify-content:space-between;align-items:center">
       <div><div style="font-size:15px;font-weight:700;color:${sc}">${st}</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:2px">${passed} passed · ${failed} failed · ${pending} pending · ${job.photos.length} photos · ${sigsOk} key sigs</div></div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">${passed} passed · ${failed} failed · ${pending} pending · ${job.photos.length} photos · ${(job.docs&&job.docs.length)||0} docs · ${sigsOk} key sigs</div></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
         <button class="btn bg" onclick="saveDraft()" style="flex:1;min-width:100px">💾 Save Draft</button>
         <button class="btn" onclick="saveAndNewCOC()" style="flex:1;min-width:120px;background:#6B4FBB;color:#fff">💾 Save &amp; New COC</button>
@@ -1359,6 +1388,14 @@ function r10(){
   <div class="card"><div class="ct">Test Results (${passed}/${TESTS.length} passed)</div><div class="g2">${tsum}</div></div>
   ${job.photos.length?`<div class="card"><div class="ct">Photos (${job.photos.length})</div>
     <div class="pgrid">${job.photos.map(p=>`<div class="pthumb"><img src="${p.data}"><div class="pcap">${esc(p.caption)||'No caption'}</div></div>`).join('')}</div></div>`:''}
+  ${(job.docs&&job.docs.length)?`<div class="card"><div class="ct">Additional Documents (${job.docs.length})</div>
+    ${job.docs.map((d,i)=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:18px">${d.type.includes('pdf')?'📄':d.type.includes('word')||d.type.includes('doc')?'📝':d.type.includes('sheet')||d.type.includes('excel')||d.type.includes('csv')?'📊':d.type.includes('image')?'🖼':'📎'}</span>
+      <div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(d.name)}</div>
+      <div style="font-size:11px;color:var(--muted)">${d.sizeLabel} · ${esc(d.category)} · Added ${d.added}</div></div>
+      <a href="${d.data}" download="${esc(d.name)}" style="background:#EEF2FA;border-radius:6px;padding:5px 10px;font-size:12px;font-weight:600;color:var(--pri);text-decoration:none">⬇ Save</a>
+    </div>`).join('')}
+  </div>`:''}
   <div class="card"><div class="ct">Signatures</div>
     <div class="g2">
       <div><div class="lbl" style="margin-bottom:5px">Inspector / Registered Person</div>
@@ -1732,6 +1769,66 @@ function confirmPhoto(){
 }
 function delPhoto(i){
   job.photos.splice(i,1);
+  r9();
+}
+
+// ── DOCUMENT HANDLING ─────────────────────────────────────
+function handleDocs(input){
+  var files=Array.from(input.files);
+  if(!files.length) return;
+  var errors=[];
+  var processed=0;
+  files.forEach(function(file){
+    if(file.size>10*1024*1024){
+      errors.push(file.name+' is too large (max 10MB)');
+      processed++;
+      if(processed===files.length){ finishDocs(errors); }
+      return;
+    }
+    var reader=new FileReader();
+    reader.onload=function(e){
+      var sizeLabel=file.size>1024*1024?(file.size/1024/1024).toFixed(1)+'MB':(file.size/1024).toFixed(0)+'KB';
+      job.docs=job.docs||[];
+      job.docs.push({
+        name:file.name,
+        type:file.type||'application/octet-stream',
+        sizeLabel:sizeLabel,
+        category:getCatLabel(file.type,file.name),
+        data:e.target.result,
+        added:new Date().toLocaleDateString('en-ZA')
+      });
+      processed++;
+      if(processed===files.length){ finishDocs(errors); }
+    };
+    reader.onerror=function(){
+      errors.push('Failed to read: '+file.name);
+      processed++;
+      if(processed===files.length){ finishDocs(errors); }
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value='';
+}
+
+function getCatLabel(type,name){
+  if(type.includes('pdf')) return 'PDF Document';
+  if(type.includes('word')||name.match(/\.docx?$/i)) return 'Word Document';
+  if(type.includes('sheet')||type.includes('excel')||name.match(/\.xlsx?$/i)) return 'Spreadsheet';
+  if(type.includes('csv')||name.match(/\.csv$/i)) return 'CSV Data';
+  if(type.includes('image')) return 'Image / Diagram';
+  if(type.includes('text')||name.match(/\.txt$/i)) return 'Text File';
+  if(name.match(/\.zip$/i)) return 'ZIP Archive';
+  return 'Document';
+}
+
+function finishDocs(errors){
+  r9();
+  if(errors.length) flash('⚠ '+errors.join(' | '),'#C0392B');
+  else flash('✓ '+( (job.docs||[]).length)+' document(s) attached');
+}
+
+function delDoc(i){
+  job.docs.splice(i,1);
   r9();
 }
 
