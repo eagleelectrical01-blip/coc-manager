@@ -3311,34 +3311,6 @@ function saRenderStats(){
   s('stat-sa-mrr','R'+mrr.toFixed(0));
 }
 
-// ── TRIAL BANNER (shown to regular users) ─────────────────
-function updateTrialBanner(){
-  var el=document.getElementById('trial-banner');
-  if(!el) return;
-  // Check if current user has a subscription record
-  var myEmail=bizName; // Using bizName as user identifier for now
-  // For demo: show trial status based on localStorage saved subscription
-  var sub=null;
-  try{ sub=JSON.parse(localStorage.getItem('cocmanager_sub')||'null'); }catch(e){}
-  if(!sub){
-    // New user — show generic trial info if set up
-    el.style.display='none';
-    return;
-  }
-  var days=Math.ceil((new Date(sub.expiry)-Date.now())/(1000*60*60*24));
-  if(sub.status==='active'){
-    el.style.display='block';
-    el.innerHTML='<div style="background:#E3F5EB;border:1px solid #9FD8B5;border-radius:8px;padding:10px 14px;font-size:13px;color:#1A7A4A;display:flex;align-items:center;gap:10px"><span>✅</span><span><strong>Subscription Active</strong> — expires '+sub.expiry+'</span></div>';
-  } else if(days>0){
-    var col=days<=5?'#FDEAEA':days<=14?'#FFF8E6':'#E8F0FB';
-    var tcol=days<=5?'#C0392B':days<=14?'#7A5A10':'#1B3A6B';
-    el.style.display='block';
-    el.innerHTML='<div style="background:'+col+';border:1px solid rgba(0,0,0,.1);border-radius:8px;padding:10px 14px;font-size:13px;color:'+tcol+';display:flex;align-items:center;gap:10px;flex-wrap:wrap"><span>⏰</span><span style="flex:1"><strong>Free Trial: '+days+' day'+(days!==1?'s':'')+' remaining</strong> — subscribe to continue using COC Manager Pro</span><button onclick="showLockScreen()" style="background:'+tcol+';color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:\'DM Sans\',sans-serif">Subscribe →</button></div>';
-  } else {
-    showLockScreen();
-  }
-}
-
 function showLockScreen(){
   var sub=null;
   try{ sub=JSON.parse(localStorage.getItem('cocmanager_sub')||'null'); }catch(e){}
